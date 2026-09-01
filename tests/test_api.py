@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration and functional tests for FastAPI decisioning service endpoints.
 """
 
@@ -58,6 +58,32 @@ def test_predict_single_application():
     assert "recommended_interest_rate" in data
     assert len(data["reason_codes"]) > 0
     assert data["latency_ms"] >= 0.0
+    assert "correlation_id" in data
+
+
+def test_predict_with_routing_and_headers():
+    payload = {
+        "application_id": "TEST-SHADOW-001",
+        "RevolvingUtilizationOfUnsecuredLines": 0.30,
+        "age": 35,
+        "NumberOfTime30-59DaysPastDueNotWorse": 0,
+        "DebtRatio": 0.25,
+        "MonthlyIncome": 6000.0,
+        "NumberOfOpenCreditLinesAndLoans": 6,
+        "NumberOfTimes90DaysLate": 0,
+        "NumberRealEstateLoansOrLines": 1,
+        "NumberOfTime60-89DaysPastDueNotWorse": 0,
+        "NumberOfDependents": 1.0
+    }
+    headers = {
+        "X-Routing-Mode": "shadow",
+        "X-Correlation-ID": "CR-TRACE-9999",
+    }
+    response = client.post("/api/v1/predict", json=payload, headers=headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["correlation_id"] == "CR-TRACE-9999"
+    assert data["routing_mode"] == "shadow"
 
 
 def test_explain_endpoint():
@@ -119,6 +145,33 @@ def test_batch_predict_endpoint():
     data = response.json()
     assert data["total_processed"] == 2
     assert len(data["decisions"]) == 2
+
+
+def test_prometheus_metrics_endpoint():
+    response = client.get("/api/v1/metrics/prometheus")
+    assert response.status_code == 200
+    assert "creditrisk_" in response.text
+
+
+def test_routing_config_endpoints():
+    get_res = client.get("/api/v1/routing")
+    assert get_res.status_code == 200
+    assert "routing_mode" in get_res.json()
+
+    post_res = client.post("/api/v1/routing/mode?mode=canary&canary_split=0.20")
+    assert post_res.status_code == 200
+    assert post_res.json()["status"] == "SUCCESS"
+
+    # Reset back to champion_only
+    client.post("/api/v1/routing/mode?mode=champion_only&canary_split=0.10")
+
+
+def test_feature_store_catalog_endpoint():
+    response = client.get("/api/v1/feature-store")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "HEALTHY"
+    assert data["total_features"] > 0
 
 
 def test_audit_logs_and_drift_endpoints():
