@@ -65,3 +65,5 @@ artifacts/
 audit_decisions.db
 data_processed/
 logs/
+*.pyc
+*.pyd
