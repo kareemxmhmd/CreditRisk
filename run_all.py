@@ -4,11 +4,9 @@ Executes training pipeline, threshold optimizer, SHAP explainer generator,
 fairness audit, and generates model reports.
 """
 
-import os
-import json
 import logging
-from pathlib import Path
-from src.config import ARTIFACTS_DIR, REPORTS_DIR, RAW_TRAIN_DATA_PATH, MODEL_VERSION
+
+from src.config import MODEL_VERSION, REPORTS_DIR
 from src.models.train import train_and_evaluate_all
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
