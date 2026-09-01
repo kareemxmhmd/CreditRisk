@@ -9,14 +9,18 @@ from src.api.routes import router, scoring_service
 from src.config import MODEL_VERSION
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load model artifacts into memory at startup
     try:
         scoring_service.load()
-        print("Model artifacts loaded successfully at startup.")
+        logger.info("Model artifacts loaded successfully at startup.")
     except Exception as e:
-        print(f"Warning: Could not eagerly load models at startup: {e}")
+        logger.warning(f"Warning: Could not eagerly load models at startup: {e}")
     yield
 
 

@@ -73,7 +73,18 @@ def main():
 
         st.markdown("---")
         st.markdown("### System Status")
-        st.success("API: Online (Port 8000)")
+        try:
+            import requests
+            import os
+            api_host = os.environ.get("API_HOST", "localhost")
+            resp = requests.get(f"http://{api_host}:8000/api/v1/health", timeout=2)
+            if resp.status_code == 200:
+                st.success(f"API: Online ({api_host}:8000)")
+            else:
+                st.warning(f"API: Unavailable (Status {resp.status_code})")
+        except Exception:
+            st.error("API: Offline or Unreachable")
+            
         st.success("Engine: Champion LightGBM")
         st.info("Explainability: SHAP Active")
         st.caption("CreditRisk Decisioning Engine. All rights reserved.")
