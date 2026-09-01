@@ -3,39 +3,33 @@ Model training and artifact generation pipeline for CreditRisk decisioning engin
 Trains Baseline Rule Scorer, Logistic Regression, XGBoost, and Champion LightGBM.
 """
 
-import os
 import json
 import logging
-from pathlib import Path
-from typing import Dict, Any, Tuple
+
 import joblib
-import numpy as np
-import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import StratifiedKFold
 import lightgbm as lgb
-import xgboost as xgb
+import numpy as np
 import shap
+import xgboost as xgb
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from src.config import (
-    RAW_TRAIN_DATA_PATH,
+    ALL_FEATURE_COLS,
     ARTIFACTS_DIR,
+    MODEL_VERSION,
+    RAW_TRAIN_DATA_PATH,
     REPORTS_DIR,
     TARGET_COL,
-    ALL_FEATURE_COLS,
-    RAW_NUMERIC_FEATURES,
-    DEFAULT_APPROVE_THRESHOLD,
-    DEFAULT_REJECT_THRESHOLD,
-    MODEL_VERSION,
 )
 from src.data_pipeline import DataCleaner, load_raw_train_data, split_data
+from src.decision_engine.cost_matrix import CostMatrix, ThresholdOptimizer
+from src.fairness.audit import FairnessAuditor
 from src.feature_engineering import CreditFeatureEngineer
 from src.models.baseline_rules import LegacyRuleBasedScorer
 from src.models.evaluate import evaluate_model_performance
-from src.decision_engine.cost_matrix import CostMatrix, ThresholdOptimizer
-from src.fairness.audit import FairnessAuditor
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -88,33 +82,31 @@ def train_and_evaluate_all():
     # Step 5: Train Baseline Models
     logger.info("Step 5.1: Evaluating Legacy Rule-Based Baseline...")
     legacy_scorer = LegacyRuleBasedScorer()
-    legacy_val_decisions = legacy_scorer.predict_decision(val_raw)
-    legacy_test_decisions = legacy_scorer.predict_decision(test_raw)
-    legacy_val_proba = legacy_scorer.predict_proba(val_raw)[:, 1]
+    _ = legacy_scorer.predict_decision(val_raw)
+    _ = legacy_scorer.predict_decision(test_raw)
+    _ = legacy_scorer.predict_proba(val_raw)[:, 1]
     legacy_test_proba = legacy_scorer.predict_proba(test_raw)[:, 1]
-
     cost_matrix = CostMatrix()
-    legacy_eval = evaluate_model_performance(
-        "Legacy Rule-Based Baseline",
-        y_test,
-        legacy_test_proba,
-        threshold=0.50,
-        cost_matrix=cost_matrix
-    )
-    logger.info("Legacy Baseline Test Cost/Profit per 1000 apps: $%.2f, Approval Rate: %.1f%%",
-                legacy_eval["financial_impact"]["profit_per_1000_applications"],
-                legacy_eval["financial_impact"]["approval_rate"] * 100)
+    legacy_eval = evaluate_model_performance("Legacy Baseline", y_test, legacy_test_proba, threshold=0.50, cost_matrix=cost_matrix)
 
-    # Step 5.2: Train Baseline Logistic Regression
-    logger.info("Step 5.2: Training Baseline Logistic Regression...")
-    lr_pipeline = Pipeline([
-        ("scaler", StandardScaler()),
-        ("clf", LogisticRegression(max_iter=1000, random_state=42, class_weight="balanced"))
+    logger.info("Step 5.2: Training & Evaluating Logistic Regression (WoE / Standardized Baseline)...")
+    # Using SimpleImputer + StandardScaler for LR
+    numeric_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())
+    ])
+    lr_preprocessor = ColumnTransformer(
+        transformers=[('num', numeric_transformer, ALL_FEATURE_COLS)],
+        remainder='drop'
+    )
+    lr_pipeline = Pipeline(steps=[
+        ('preprocessor', lr_preprocessor),
+        ('classifier', LogisticRegression(class_weight='balanced', max_iter=1000, random_state=42))
     ])
     lr_pipeline.fit(X_train, y_train)
     joblib.dump(lr_pipeline, ARTIFACTS_DIR / "baseline_lr_model.joblib")
 
-    lr_val_proba = lr_pipeline.predict_proba(X_val)[:, 1]
+    _ = lr_pipeline.predict_proba(X_val)[:, 1]
     lr_test_proba = lr_pipeline.predict_proba(X_test)[:, 1]
     lr_eval = evaluate_model_performance("Baseline Logistic Regression", y_test, lr_test_proba, threshold=0.05, cost_matrix=cost_matrix)
     logger.info("Logistic Regression Test AUC: %.4f, KS: %.4f", lr_eval["auc_roc"], lr_eval["ks_statistic"])

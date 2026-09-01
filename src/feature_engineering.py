@@ -3,11 +3,12 @@ Feature engineering pipeline for CreditRisk scoring engine.
 Transforms cleaned raw inputs into domain-rich risk signals.
 """
 
-from typing import List, Optional
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from src.config import ALL_FEATURE_COLS, TARGET_COL
+
+from src.config import ALL_FEATURE_COLS
 
 
 class CreditFeatureEngineer(BaseEstimator, TransformerMixin):
@@ -15,7 +16,7 @@ class CreditFeatureEngineer(BaseEstimator, TransformerMixin):
     Scikit-learn compatible feature engineering transformer for credit risk data.
     """
 
-    def __init__(self, feature_cols: Optional[List[str]] = None):
+    def __init__(self, feature_cols: list[str] | None = None):
         self.feature_cols = feature_cols or ALL_FEATURE_COLS
 
     def fit(self, X: pd.DataFrame, y=None):

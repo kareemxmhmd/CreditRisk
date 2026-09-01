@@ -2,11 +2,10 @@
 Streamlit Page: Fair Lending & Demographic Fairness Audit Dashboard
 """
 
-import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
-import plotly.express as px
+import streamlit as st
+
 from src.api.routes import get_service
 
 
@@ -134,9 +133,9 @@ def render_fairness_page():
         )
         fig_dir.update_layout(
             title="Disparate Impact Ratio (DIR) vs Reference Cohort",
-            yaxis=dict(range=[0.0, 1.1], title="Disparate Impact Ratio"),
+            yaxis={"range": [0.0, 1.1], "title": "Disparate Impact Ratio"},
             height=340,
-            margin=dict(l=10, r=10, t=40, b=30)
+            margin={"l": 10, "r": 10, "t": 40, "b": 30}
         )
         st.plotly_chart(fig_dir, use_container_width=True)
 
@@ -150,9 +149,9 @@ def render_fairness_page():
         fig_comp.update_layout(
             title="Approval Rate vs. Baseline Default Rate by Age Cohort",
             barmode='group',
-            yaxis=dict(title="Percentage (%)"),
+            yaxis={"title": "Percentage (%)"},
             height=340,
-            margin=dict(l=10, r=10, t=40, b=30)
+            margin={"l": 10, "r": 10, "t": 40, "b": 30}
         )
         st.plotly_chart(fig_comp, use_container_width=True)
 

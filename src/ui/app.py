@@ -7,12 +7,13 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import streamlit as st
-from src.ui.loan_officer_page import render_loan_officer_page
-from src.ui.risk_manager_page import render_risk_manager_page
-from src.ui.fairness_page import render_fairness_page
-from src.ui.batch_page import render_batch_page
-from src.ui.monitoring_page import render_monitoring_page
+
 from src.config import MODEL_VERSION
+from src.ui.batch_page import render_batch_page
+from src.ui.fairness_page import render_fairness_page
+from src.ui.loan_officer_page import render_loan_officer_page
+from src.ui.monitoring_page import render_monitoring_page
+from src.ui.risk_manager_page import render_risk_manager_page
 
 # Set page configuration
 st.set_page_config(
@@ -74,8 +75,9 @@ def main():
         st.markdown("---")
         st.markdown("### System Status")
         try:
-            import requests
             import os
+
+            import requests
             api_host = os.environ.get("API_HOST", "localhost")
             resp = requests.get(f"http://{api_host}:8000/api/v1/health", timeout=2)
             if resp.status_code == 200:

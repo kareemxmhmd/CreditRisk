@@ -2,11 +2,10 @@
 Streamlit Page: Batch Application Evaluator & Report Generator
 """
 
-import io
-import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
+import streamlit as st
+
 from src.api.routes import get_service
 from src.config import RAW_TEST_DATA_PATH
 
@@ -73,14 +72,13 @@ def render_batch_page():
             st.success(f"Successfully loaded {len(input_df):,} applicant records.")
 
     with upload_tab2:
-        if st.button("Load 500 Samples from Test Dataset", key="btn_load_sample"):
-            if RAW_TEST_DATA_PATH.exists():
-                raw_sample = pd.read_csv(RAW_TEST_DATA_PATH, nrows=500)
-                if "Unnamed: 0" in raw_sample.columns:
-                    raw_sample["application_id"] = "APP-TEST-" + raw_sample["Unnamed: 0"].astype(str)
-                input_df = raw_sample
-                st.session_state["loaded_sample_df"] = input_df
-                st.success(f"Loaded {len(input_df)} records from test dataset.")
+        if st.button("Load 500 Samples from Test Dataset", key="btn_load_sample") and RAW_TEST_DATA_PATH.exists():
+            raw_sample = pd.read_csv(RAW_TEST_DATA_PATH, nrows=500)
+            if "Unnamed: 0" in raw_sample.columns:
+                raw_sample["application_id"] = "APP-TEST-" + raw_sample["Unnamed: 0"].astype(str)
+            input_df = raw_sample
+            st.session_state["loaded_sample_df"] = input_df
+            st.success(f"Loaded {len(input_df)} records from test dataset.")
 
         if "loaded_sample_df" in st.session_state and input_df is None:
             input_df = st.session_state["loaded_sample_df"]
@@ -149,7 +147,7 @@ def render_batch_page():
                 color="Decision",
                 color_discrete_map={"APPROVE": "#28a745", "REFER": "#ffc107", "REJECT": "#dc3545"}
             )
-            fig_pie.update_layout(height=300, margin=dict(l=10, r=10, t=40, b=10))
+            fig_pie.update_layout(height=300, margin={"l": 10, "r": 10, "t": 40, "b": 10})
             st.plotly_chart(fig_pie, use_container_width=True)
 
             # Filterable Table

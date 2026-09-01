@@ -2,11 +2,12 @@
 Unit tests for SHAP explainability and Adverse Action reason code mapping.
 """
 
-import pandas as pd
-import numpy as np
 import lightgbm as lgb
-from src.decision_engine.explainability import SHAPExplainerEngine
+import numpy as np
+import pandas as pd
+
 from src.config import ALL_FEATURE_COLS
+from src.decision_engine.explainability import SHAPExplainerEngine
 
 
 def test_shap_explainer_generates_adverse_action_reasons():

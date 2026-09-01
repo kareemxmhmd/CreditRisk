@@ -2,15 +2,14 @@
 Cost-sensitive threshold optimization and financial impact evaluation.
 """
 
-from typing import Dict, Any, Tuple, Optional
+from typing import Any
+
 import numpy as np
-import pandas as pd
+
 from src.config import (
-    DEFAULT_LOAN_AMOUNT,
     DEFAULT_INTEREST_RATE,
+    DEFAULT_LOAN_AMOUNT,
     DEFAULT_RECOVERY_RATE,
-    DEFAULT_APPROVE_THRESHOLD,
-    DEFAULT_REJECT_THRESHOLD,
 )
 
 
@@ -59,7 +58,7 @@ class CostMatrix:
         self,
         y_true: np.ndarray,
         decisions: np.ndarray, # 'APPROVE', 'REJECT', or 'REFER'
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Compute total and per-application financial impact for a decision vector.
         Note: For 'REFER', we assume manual review incurs a small review cost ($50)
@@ -126,7 +125,7 @@ class ThresholdOptimizer:
     Optimizes binary and 3-tier decision thresholds to maximize expected financial payoff.
     """
 
-    def __init__(self, cost_matrix: Optional[CostMatrix] = None):
+    def __init__(self, cost_matrix: CostMatrix | None = None):
         self.cost_matrix = cost_matrix or CostMatrix()
 
     def find_optimal_threshold(
@@ -134,7 +133,7 @@ class ThresholdOptimizer:
         y_true: np.ndarray,
         y_proba: np.ndarray,
         threshold_steps: int = 200,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Scan probability thresholds to find optimal threshold tau* maximizing net profit.
         """

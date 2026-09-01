@@ -2,7 +2,8 @@
 Data and model drift detector using Population Stability Index (PSI) and Kolmogorov-Smirnov tests.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from scipy.stats import ks_2samp, wasserstein_distance
@@ -58,7 +59,7 @@ class DriftDetector:
     def __init__(
         self,
         baseline_df: pd.DataFrame,
-        numeric_features: Optional[List[str]] = None,
+        numeric_features: list[str] | None = None,
         psi_threshold_moderate: float = 0.10,
         psi_threshold_severe: float = 0.25,
     ):
@@ -70,7 +71,7 @@ class DriftDetector:
         self.psi_threshold_moderate = psi_threshold_moderate
         self.psi_threshold_severe = psi_threshold_severe
 
-    def evaluate_drift(self, current_df: pd.DataFrame) -> Dict[str, Any]:
+    def evaluate_drift(self, current_df: pd.DataFrame) -> dict[str, Any]:
         """
         Evaluate drift metrics across all monitored features.
         """

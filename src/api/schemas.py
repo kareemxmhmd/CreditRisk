@@ -2,13 +2,12 @@
 Pydantic schemas for CreditRisk FastAPI decision service.
 """
 
-from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 
 class ApplicationInput(BaseModel):
     """Input payload for a single loan credit application."""
-    application_id: Optional[str] = Field(default="APP-DEFAULT-001", description="Unique identifier for applicant")
+    application_id: str | None = Field(default="APP-DEFAULT-001", description="Unique identifier for applicant")
     RevolvingUtilizationOfUnsecuredLines: float = Field(
         ...,
         ge=0.0,
@@ -26,7 +25,7 @@ class ApplicationInput(BaseModel):
         ge=0.0,
         description="Monthly debt payments, alimony, living costs divided by monthly gross income (or monthly debt amount if income is unverified)"
     )
-    MonthlyIncome: Optional[float] = Field(
+    MonthlyIncome: float | None = Field(
         default=None,
         ge=0.0,
         description="Monthly gross income in USD (optional, median imputed if omitted)"
@@ -52,7 +51,7 @@ class ApplicationInput(BaseModel):
         alias="NumberOfTime60-89DaysPastDueNotWorse",
         description="Number of times borrower has been 60-89 days past due but no worse in the last 2 years"
     )
-    NumberOfDependents: Optional[float] = Field(
+    NumberOfDependents: float | None = Field(
         default=0.0,
         ge=0.0,
         description="Number of dependents in family excluding applicant (children, spouse etc.)"
@@ -102,7 +101,7 @@ class SingleDecisionResponse(BaseModel):
     recommended_interest_rate: float
     recommended_rate_display: str
     action_summary: str
-    reason_codes: List[str]
+    reason_codes: list[str]
     model_version: str
     decision_timestamp: str
     latency_ms: float
@@ -110,12 +109,12 @@ class SingleDecisionResponse(BaseModel):
 
 class ExplainDecisionResponse(SingleDecisionResponse):
     base_value: float
-    detailed_reason_codes: List[ReasonCode]
-    all_feature_contributions: List[FeatureContribution]
+    detailed_reason_codes: list[ReasonCode]
+    all_feature_contributions: list[FeatureContribution]
 
 
 class BatchApplicationRequest(BaseModel):
-    applications: List[ApplicationInput]
+    applications: list[ApplicationInput]
 
 
 class BatchDecisionResponse(BaseModel):
@@ -123,7 +122,7 @@ class BatchDecisionResponse(BaseModel):
     approved_count: int
     referred_count: int
     rejected_count: int
-    decisions: List[SingleDecisionResponse]
+    decisions: list[SingleDecisionResponse]
     latency_ms: float
 
 
@@ -133,5 +132,5 @@ class HealthResponse(BaseModel):
     model_type: str
     cv_auc: float
     test_auc: float
-    decision_thresholds: Dict[str, float]
+    decision_thresholds: dict[str, float]
     uptime_status: str

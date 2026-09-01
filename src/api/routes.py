@@ -2,35 +2,34 @@
 API Endpoints and routing for the CreditRisk FastAPI decision service.
 """
 
-import time
 import json
+import time
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
-import joblib
-import numpy as np
-import pandas as pd
-from fastapi import APIRouter, HTTPException, Depends, Query
+from typing import Any
 
-from src.config import (
-    ARTIFACTS_DIR,
-    MODEL_VERSION,
-    ALL_FEATURE_COLS,
-    RAW_NUMERIC_FEATURES,
-)
+import joblib
+import pandas as pd
+from fastapi import APIRouter, Depends, Query
+
 from src.api.schemas import (
     ApplicationInput,
-    SingleDecisionResponse,
-    ExplainDecisionResponse,
     BatchApplicationRequest,
     BatchDecisionResponse,
+    ExplainDecisionResponse,
     HealthResponse,
+    SingleDecisionResponse,
+)
+from src.config import (
+    ALL_FEATURE_COLS,
+    ARTIFACTS_DIR,
+    MODEL_VERSION,
 )
 from src.data_pipeline import DataCleaner
-from src.feature_engineering import CreditFeatureEngineer
-from src.decision_engine.risk_tiering import RiskDecisionEngine
 from src.decision_engine.explainability import SHAPExplainerEngine
-from src.monitoring.logger import DecisionLogger
+from src.decision_engine.risk_tiering import RiskDecisionEngine
+from src.feature_engineering import CreditFeatureEngineer
 from src.monitoring.drift_detector import DriftDetector
+from src.monitoring.logger import DecisionLogger
 
 router = APIRouter()
 
@@ -40,14 +39,14 @@ class ScoringService:
     Singleton service holding model artifacts in memory for low-latency serving.
     """
     def __init__(self):
-        self.cleaner: Optional[DataCleaner] = None
-        self.feature_engineer: Optional[CreditFeatureEngineer] = None
+        self.cleaner: DataCleaner | None = None
+        self.feature_engineer: CreditFeatureEngineer | None = None
         self.model = None
-        self.explainer: Optional[SHAPExplainerEngine] = None
-        self.decision_engine: Optional[RiskDecisionEngine] = None
-        self.logger: Optional[DecisionLogger] = None
-        self.drift_detector: Optional[DriftDetector] = None
-        self.metadata: Dict[str, Any] = {}
+        self.explainer: SHAPExplainerEngine | None = None
+        self.decision_engine: RiskDecisionEngine | None = None
+        self.logger: DecisionLogger | None = None
+        self.drift_detector: DriftDetector | None = None
+        self.metadata: dict[str, Any] = {}
         self.is_loaded = False
 
     def load(self):
@@ -184,7 +183,7 @@ def predict_decision(
             raw_features=raw_df.iloc[0].to_dict(),
             latency_ms=elapsed_ms,
         )
-    except Exception as e:
+    except Exception:
         # Logging error should not break real-time scoring
         pass
 

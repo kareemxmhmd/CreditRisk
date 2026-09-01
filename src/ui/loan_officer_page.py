@@ -2,13 +2,11 @@
 Streamlit Page: Loan Officer Workspace (Single Application Evaluation & Adverse Action Reasons)
 """
 
-import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
-import plotly.express as px
-from src.api.routes import get_service, ApplicationInput
+import streamlit as st
 
+from src.api.routes import get_service
 
 # Sample borrower archetypes for quick demonstration
 PRESET_PROFILES = {
@@ -161,20 +159,6 @@ def render_loan_officer_page():
 
     # Evaluate Button
     if st.button("Evaluate Credit Decision & Explain", type="primary", use_container_width=True):
-        app_input = ApplicationInput(
-            application_id=app_id,
-            RevolvingUtilizationOfUnsecuredLines=utilization,
-            age=age,
-            NumberOfTime30_59DaysPastDueNotWorse=late_30_59,
-            DebtRatio=debt_ratio,
-            MonthlyIncome=monthly_income,
-            NumberOfOpenCreditLinesAndLoans=open_lines,
-            NumberOfTimes90DaysLate=late_90,
-            NumberRealEstateLoansOrLines=re_lines,
-            NumberOfTime60_89DaysPastDueNotWorse=late_60_89,
-            NumberOfDependents=float(dependents)
-        )
-
         with st.spinner("Executing Risk Scoring & SHAP Explainer..."):
             # Clean and feature engineer
             raw_dict = {
@@ -279,7 +263,7 @@ def render_loan_officer_page():
                 }
             }
         ))
-        fig_gauge.update_layout(height=260, margin=dict(l=20, r=20, t=40, b=20))
+        fig_gauge.update_layout(height=260, margin={"l": 20, "r": 20, "t": 40, "b": 20})
         st.plotly_chart(fig_gauge, use_container_width=True)
 
         # Adverse Action Reason Codes Section (FR3, FR4)
@@ -312,7 +296,7 @@ def render_loan_officer_page():
             xaxis_title="SHAP Impact (Red: Increases Default Risk, Green: Lowers Default Risk)",
             yaxis_title="Feature Name",
             height=380,
-            margin=dict(l=10, r=10, t=40, b=30)
+            margin={"l": 10, "r": 10, "t": 40, "b": 30}
         )
         st.plotly_chart(fig_shap, use_container_width=True)
 

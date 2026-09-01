@@ -2,10 +2,12 @@
 Explainability engine using SHAP and Adverse Action Reason Code generation.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
 import shap
+
 from src.config import ADVERSE_ACTION_REASONS
 
 
@@ -15,7 +17,7 @@ class SHAPExplainerEngine:
     Uses exact tree-path traversal for high-performance inference (<20ms).
     """
 
-    def __init__(self, model, feature_names: List[str], background_data: Optional[pd.DataFrame] = None):
+    def __init__(self, model, feature_names: list[str], background_data: pd.DataFrame | None = None):
         self.model = model
         self.feature_names = feature_names
         
@@ -27,7 +29,7 @@ class SHAPExplainerEngine:
         features_df: pd.DataFrame,
         top_n: int = 3,
         decision: str = "REJECT"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Explain a single applicant instance.
         Returns:

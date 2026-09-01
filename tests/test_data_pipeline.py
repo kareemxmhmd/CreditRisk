@@ -2,8 +2,9 @@
 Unit tests for data pipeline and data cleaning.
 """
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from src.data_pipeline import DataCleaner, split_data
 
 

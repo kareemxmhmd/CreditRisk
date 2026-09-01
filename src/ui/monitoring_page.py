@@ -3,10 +3,11 @@ Streamlit Page: Data Drift Monitoring & Live Decision Audit Logger
 """
 
 import json
-import streamlit as st
+
 import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
+import streamlit as st
+
 from src.api.routes import get_service
 
 
@@ -114,7 +115,7 @@ def render_monitoring_page():
                     yaxis_title="Probability Density",
                     barmode='overlay',
                     height=340,
-                    margin=dict(l=10, r=10, t=40, b=30)
+                    margin={"l": 10, "r": 10, "t": 40, "b": 30}
                 )
                 st.plotly_chart(fig_dist, use_container_width=True)
 

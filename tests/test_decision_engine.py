@@ -3,7 +3,8 @@ Unit tests for cost matrix, threshold optimizer, and risk tiering engine.
 """
 
 import numpy as np
-from src.decision_engine.cost_matrix import CostMatrix, ThresholdOptimizer
+
+from src.decision_engine.cost_matrix import CostMatrix
 from src.decision_engine.risk_tiering import RiskDecisionEngine
 
 

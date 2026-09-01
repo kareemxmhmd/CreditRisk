@@ -4,6 +4,7 @@ Integration and functional tests for FastAPI decisioning service endpoints.
 
 import pytest
 from fastapi.testclient import TestClient
+
 from src.api.app import app
 from src.api.routes import scoring_service
 

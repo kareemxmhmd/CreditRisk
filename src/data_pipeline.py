@@ -2,15 +2,13 @@
 Data ingestion, cleaning, and preprocessing pipeline for CreditRisk.
 """
 
-from typing import Tuple, Optional, Dict, Any
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+
 from src.config import (
+    ID_COL,
     RAW_TRAIN_DATA_PATH,
     TARGET_COL,
-    ID_COL,
-    RAW_NUMERIC_FEATURES,
 )
 
 
@@ -20,7 +18,7 @@ class DataCleaner:
     Handles anomalous codes (96/98), outlier clipping, and missing value indicators.
     """
 
-    def __init__(self, median_values: Optional[Dict[str, float]] = None):
+    def __init__(self, median_values: dict[str, float] | None = None):
         self.median_values = median_values or {}
 
     def fit(self, df: pd.DataFrame) -> "DataCleaner":
@@ -119,7 +117,7 @@ class DataCleaner:
         return self.fit(df).transform(df)
 
 
-def load_raw_train_data(filepath: Optional[str] = None) -> pd.DataFrame:
+def load_raw_train_data(filepath: str | None = None) -> pd.DataFrame:
     """Load raw training CSV dataset."""
     path = filepath or RAW_TRAIN_DATA_PATH
     df = pd.read_csv(path)
@@ -131,7 +129,7 @@ def split_data(
     test_size: float = 0.15,
     val_size: float = 0.15,
     random_state: int = 42
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Split data into stratified Train, Validation, and Test sets.
     """

@@ -2,7 +2,8 @@
 Fair lending and demographic fairness audit module (Disparate Impact, Equal Opportunity).
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -27,7 +28,7 @@ class FairnessAuditor:
         df: pd.DataFrame,
         y_true: np.ndarray,
         decisions: np.ndarray, # 'APPROVE' / 'REJECT' / 'REFER'
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run full fairness analysis across demographic cohorts.
         """

@@ -6,8 +6,10 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 import pandas as pd
+
 from src.config import DB_PATH, MODEL_VERSION
 
 
@@ -52,8 +54,8 @@ class DecisionLogger:
         decision: str,
         risk_tier: str,
         recommended_interest_rate: float,
-        reason_codes: List[Dict[str, Any]],
-        raw_features: Dict[str, Any],
+        reason_codes: list[dict[str, Any]],
+        raw_features: dict[str, Any],
         latency_ms: float = 0.0,
         model_version: str = MODEL_VERSION,
     ) -> int:

@@ -4,8 +4,9 @@ Unit tests for drift detection and fairness auditing.
 
 import numpy as np
 import pandas as pd
-from src.monitoring.drift_detector import calculate_psi, DriftDetector
+
 from src.fairness.audit import FairnessAuditor
+from src.monitoring.drift_detector import calculate_psi
 
 
 def test_calculate_psi():

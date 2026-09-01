@@ -2,13 +2,13 @@
 Streamlit Page: Risk Manager Portfolio Analytics & Cost-Sensitive Optimization
 """
 
-import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
+import streamlit as st
+
 from src.api.routes import get_service
-from src.decision_engine.cost_matrix import CostMatrix, ThresholdOptimizer
+from src.decision_engine.cost_matrix import CostMatrix
 
 
 def render_risk_manager_page():
@@ -148,7 +148,7 @@ def render_risk_manager_page():
         y=profits_curve,
         mode='lines+markers',
         name='Expected Net Profit per 1,000 Apps ($)',
-        line=dict(color='#28a745', width=3)
+        line={"color": '#28a745', "width": 3}
     ))
     fig_curve.add_vline(
         x=opt_tau * 100,
@@ -162,7 +162,7 @@ def render_risk_manager_page():
         xaxis_title="Probability Decision Threshold (%)",
         yaxis_title="Expected Net Profit ($)",
         height=380,
-        margin=dict(l=10, r=10, t=40, b=30)
+        margin={"l": 10, "r": 10, "t": 40, "b": 30}
     )
     st.plotly_chart(fig_curve, use_container_width=True)
 
@@ -178,14 +178,14 @@ def render_risk_manager_page():
         fpr = np.linspace(0, 1, 100)
         tpr = 1.0 - (1.0 - fpr) ** 4.5  # Yields ~0.865 AUC
         fig_roc = go.Figure()
-        fig_roc.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name=f"Champion LGBM (AUC = {meta.get('test_auc', 0.864):.3f})", line=dict(color='#007bff', width=3)))
-        fig_roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name="Chance (AUC = 0.500)", line=dict(dash='dash', color='gray')))
+        fig_roc.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name=f"Champion LGBM (AUC = {meta.get('test_auc', 0.864):.3f})", line={"color": '#007bff', "width": 3}))
+        fig_roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name="Chance (AUC = 0.500)", line={"dash": 'dash', "color": 'gray'}))
         fig_roc.update_layout(
             title="Receiver Operating Characteristic (ROC-AUC)",
             xaxis_title="False Positive Rate",
             yaxis_title="True Positive Rate",
             height=340,
-            margin=dict(l=10, r=10, t=40, b=30)
+            margin={"l": 10, "r": 10, "t": 40, "b": 30}
         )
         st.plotly_chart(fig_roc, use_container_width=True)
 
@@ -195,13 +195,13 @@ def render_risk_manager_page():
         cdf_def = 1.0 / (1.0 + np.exp(-(scores - 35) / 10))
         cdf_non = 1.0 / (1.0 + np.exp(-(scores - 65) / 12))
         fig_ks = go.Figure()
-        fig_ks.add_trace(go.Scatter(x=scores, y=cdf_def, mode='lines', name="Defaulters CDF", line=dict(color='#dc3545', width=2.5)))
-        fig_ks.add_trace(go.Scatter(x=scores, y=cdf_non, mode='lines', name="Non-Defaulters CDF", line=dict(color='#28a745', width=2.5)))
+        fig_ks.add_trace(go.Scatter(x=scores, y=cdf_def, mode='lines', name="Defaulters CDF", line={"color": '#dc3545', "width": 2.5}))
+        fig_ks.add_trace(go.Scatter(x=scores, y=cdf_non, mode='lines', name="Non-Defaulters CDF", line={"color": '#28a745', "width": 2.5}))
         fig_ks.update_layout(
             title=f"Kolmogorov-Smirnov Separation (KS = {meta.get('test_ks_statistic', 0.582):.3f})",
             xaxis_title="Score Decile",
             yaxis_title="Cumulative Probability",
             height=340,
-            margin=dict(l=10, r=10, t=40, b=30)
+            margin={"l": 10, "r": 10, "t": 40, "b": 30}
         )
         st.plotly_chart(fig_ks, use_container_width=True)

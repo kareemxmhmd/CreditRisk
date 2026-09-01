@@ -2,11 +2,12 @@
 Risk tiering and risk-based interest rate assignment module.
 """
 
-from typing import Dict, Any, Tuple
+from typing import Any
+
 from src.config import (
-    RISK_TIERS,
     DEFAULT_APPROVE_THRESHOLD,
     DEFAULT_REJECT_THRESHOLD,
+    RISK_TIERS,
 )
 
 
@@ -20,13 +21,13 @@ class RiskDecisionEngine:
         self,
         approve_threshold: float = DEFAULT_APPROVE_THRESHOLD,
         reject_threshold: float = DEFAULT_REJECT_THRESHOLD,
-        risk_tiers: Dict[str, Dict[str, Any]] = None,
+        risk_tiers: dict[str, dict[str, Any]] = None,
     ):
         self.approve_threshold = approve_threshold
         self.reject_threshold = reject_threshold
         self.risk_tiers = risk_tiers or RISK_TIERS
 
-    def evaluate(self, pd_value: float) -> Dict[str, Any]:
+    def evaluate(self, pd_value: float) -> dict[str, Any]:
         """
         Evaluate a single probability of default.
         """

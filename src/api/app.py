@@ -2,14 +2,14 @@
 FastAPI Main Application Entrypoint for CreditRisk Engine.
 """
 
+import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from src.api.routes import router, scoring_service
 from src.config import MODEL_VERSION
-
-
-import logging
 
 logger = logging.getLogger(__name__)
 

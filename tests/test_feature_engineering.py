@@ -3,9 +3,9 @@ Unit tests for credit feature engineering.
 """
 
 import pandas as pd
-import numpy as np
-from src.feature_engineering import CreditFeatureEngineer
+
 from src.config import ALL_FEATURE_COLS
+from src.feature_engineering import CreditFeatureEngineer
 
 
 def test_feature_engineering_transforms():

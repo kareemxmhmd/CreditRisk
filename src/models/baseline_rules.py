@@ -2,7 +2,6 @@
 Legacy Rule-Based Baseline decision simulator for credit risk benchmark comparison.
 """
 
-from typing import Dict, Any, Union
 import numpy as np
 import pandas as pd
 

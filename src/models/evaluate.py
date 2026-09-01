@@ -2,20 +2,20 @@
 Model evaluation module computing AUC, KS-statistic, PR-AUC, Brier score, and financial payoff.
 """
 
-from typing import Dict, Any, Tuple
+from typing import Any
+
 import numpy as np
-import pandas as pd
 from sklearn.metrics import (
-    roc_auc_score,
     average_precision_score,
     brier_score_loss,
     confusion_matrix,
-    classification_report,
+    roc_auc_score,
 )
+
 from src.decision_engine.cost_matrix import CostMatrix
 
 
-def compute_ks_statistic(y_true: np.ndarray, y_proba: np.ndarray) -> Tuple[float, float]:
+def compute_ks_statistic(y_true: np.ndarray, y_proba: np.ndarray) -> tuple[float, float]:
     """
     Compute Kolmogorov-Smirnov (KS) statistic and the probability threshold where KS is maximized.
     KS = max(TPR - FPR). Standard credit scoring metric.
@@ -53,7 +53,7 @@ def evaluate_model_performance(
     y_proba: np.ndarray,
     threshold: float = 0.05,
     cost_matrix: CostMatrix = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Comprehensive credit model evaluation covering discrimination, calibration, and financial return.
     """

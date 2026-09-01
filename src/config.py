@@ -3,7 +3,7 @@ Configuration and constants for the CreditRisk decisioning engine.
 """
 
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 # Root directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -72,7 +72,7 @@ DEFAULT_APPROVE_THRESHOLD = 0.040   # PD < 4.0% -> Approve
 DEFAULT_REJECT_THRESHOLD = 0.120    # PD >= 12.0% -> Reject (Between 4% and 12% -> Refer)
 
 # Risk Tiers Configuration
-RISK_TIERS: Dict[str, Dict[str, Any]] = {
+RISK_TIERS: dict[str, dict[str, Any]] = {
     "LOW": {
         "max_pd": 0.025,
         "label": "Low Risk (Prime)",
@@ -105,7 +105,7 @@ RISK_TIERS: Dict[str, Dict[str, Any]] = {
 
 # Adverse Action Reason Code Mapping (for FCRA / ECOA compliance)
 # Maps features whose high SHAP values push probability of default upwards to human-readable explanations.
-ADVERSE_ACTION_REASONS: Dict[str, Dict[str, str]] = {
+ADVERSE_ACTION_REASONS: dict[str, dict[str, str]] = {
     "RevolvingUtilizationOfUnsecuredLines": {
         "high": "High revolving credit card balance relative to total credit limits (high utilization).",
         "low": "Favorable low credit utilization across revolving lines."
