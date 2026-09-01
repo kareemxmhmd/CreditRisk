@@ -25,6 +25,8 @@ services:
       - ./audit_decisions.db:/app/audit_decisions.db
       - ./artifacts:/app/artifacts
       - ./reports:/app/reports
+    environment:
+      - API_HOST=api
     depends_on:
       - api
     restart: unless-stopped
