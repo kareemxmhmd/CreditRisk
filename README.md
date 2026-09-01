@@ -6,7 +6,7 @@
 [![SHAP](https://img.shields.io/badge/SHAP-0.43+-blue.svg)](https://shap.readthedocs.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> A production-grade, cost-sensitive credit risk evaluation and loan decisioning system. Replaces legacy heuristic scoring rules with a high-accuracy gradient boosted model (**LightGBM**, AUC **0.864**, KS **0.582**), automated **3-tier decisions** (Approve / Refer / Reject), risk tiering, suggested APR pricing, **regulatory Adverse Action reason codes** (FCRA/ECOA via SHAP), fair lending auditing, real-time FastAPI service, interactive Web UI, and automated drift monitoring.
+> A production-grade, cost-sensitive credit risk evaluation and loan decisioning system. Replaces legacy heuristic scoring rules with a high-accuracy gradient boosted model (**LightGBM**, AUC **0.872**, KS **0.589**), automated **3-tier decisions** (Approve / Refer / Reject), risk tiering, suggested APR pricing, **regulatory Adverse Action reason codes** (FCRA/ECOA via SHAP), fair lending auditing, real-time FastAPI service, interactive Web UI, and automated drift monitoring.
 
 ---
 
@@ -31,7 +31,7 @@
 | **G1** | Reduce expected financial loss per 1,000 applications vs. rule-based baseline | ✅ **Achieved**: Significant net financial profit improvement vs. legacy rule baseline |
 | **G2** | Provide automated 3-tier decision (**Approve / Refer / Reject**) | ✅ **Achieved**: Dual-threshold cost-sensitive decision engine |
 | **G3** | Output human-readable reason codes (Adverse Action notice compliance) | ✅ **Achieved**: SHAP TreeExplainer mapped to plain-English ECOA-compliant reasons |
-| **G4** | Ensure no unjustified disparate impact across demographic groups | ✅ **Achieved**: 4/5ths Rule Disparate Impact audit across age cohorts |
+| **G4** | Ensure no unjustified disparate impact across demographic groups | ❌ **Failed**: 4/5ths Rule Disparate Impact audit flagged for Young (<30) cohort |
 | **G5** | Ship as a real, callable service (API + Web UI) | ✅ **Achieved**: FastAPI service + 5-page Streamlit portal |
 | **G6** | Continuous monitoring for data drift and performance decay | ✅ **Achieved**: PSI & KS-test drift detector + SQLite audit logger |
 
@@ -89,10 +89,10 @@ Evaluated on holdout test set (22,500 applications):
 
 | Model / System | ROC-AUC | KS Statistic | PR-AUC | Expected Net Profit / 1K Apps | Approval Rate |
 |---|---|---|---|---|---|
-| **Champion LightGBM** | **0.864** | **0.582** | **0.385** | **+$1,250,000** | **78.4%** |
-| XGBoost Classifier | 0.861 | 0.575 | 0.378 | +$1,210,000 | 77.1% |
-| Logistic Regression (Baseline) | 0.801 | 0.468 | 0.285 | +$980,000 | 72.4% |
-| Legacy Rule-Based Heuristic | 0.650 | 0.320 | 0.180 | +$820,000 | 68.2% |
+| **Champion LightGBM** | **0.872** | **0.589** | **0.385** | **+$932,266** | **78.4%** |
+| XGBoost Classifier | 0.871 | 0.587 | 0.378 | +$910,000 | 77.1% |
+| Logistic Regression (Baseline) | 0.860 | 0.568 | 0.285 | +$890,000 | 72.4% |
+| Legacy Rule-Based Heuristic | 0.650 | 0.320 | 0.180 | +$330,000 | 63.2% |
 
 ---
 
@@ -105,10 +105,10 @@ Every rejection and referral is automatically paired with the **top 3 dominant r
 - *Reason 3:* "High total monthly debt payments and fixed obligations relative to monthly gross income."
 
 ### 5.2 Four-Fifths Rule Fairness Audit
-- **Young (<30):** DIR = `0.915` (✅ PASS)
-- **Prime (30-49):** DIR = `0.957` (✅ PASS)
-- **Mature (50-64):** DIR = `1.000` (Reference Group)
-- **Senior (65+):** DIR = `0.991` (✅ PASS)
+- **Young (<30):** DIR = `0.781` (❌ FAIL)
+- **Prime (30-49):** DIR = `0.862` (✅ PASS)
+- **Mature (50-64):** DIR = `0.941` (✅ PASS)
+- **Senior (65+):** DIR = `1.000` (Reference Group)
 
 ---
 
