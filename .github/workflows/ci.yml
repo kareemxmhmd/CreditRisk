@@ -1,0 +1,91 @@
+﻿name: Enterprise CreditRisk CI/CD & Model Governance Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  code-quality-and-tests:
+    name: Code Quality & Automated Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov ruff
+
+      - name: Code Linting & Static Checks
+        run: |
+          ruff check src/ tests/ --ignore E501
+
+      - name: Run Test Suite with Code Coverage
+        run: |
+          pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  model-governance-and-audit:
+    name: Model Performance & Fair Lending Regression Audit
+    runs-on: ubuntu-latest
+    needs: code-quality-and-tests
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify Model Artifacts & Fair Lending Audit
+        run: |
+          python -c "
+          import json
+          with open('artifacts/model_metadata.json') as f:
+              meta = json.load(f)
+          print('Loaded Model Version:', meta.get('model_version'))
+          auc = meta.get('test_auc', 0)
+          ece = meta.get('test_ece', 1.0)
+          assert auc >= 0.85, f'Model AUC regression failure: {auc} < 0.85'
+          assert ece <= 0.05, f'Model calibration failure: ECE {ece} > 0.05'
+          print('Model governance check PASSED: AUC =', auc, '| ECE =', ece)
+          "
+
+  docker-build-check:
+    name: Docker Container Build Verification
+    runs-on: ubuntu-latest
+    needs: code-quality-and-tests
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        run: |
+          docker build -t creditrisk-service:latest .
