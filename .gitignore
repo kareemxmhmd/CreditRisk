@@ -62,7 +62,6 @@ venv.bak/
 
 # Project Specific
 artifacts/
-reports/
 audit_decisions.db
 data_processed/
 logs/
