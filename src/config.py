@@ -171,3 +171,26 @@ ADVERSE_ACTION_REASONS: dict[str, dict[str, str]] = {
         "low": "Healthy combination of low utilization and balanced debt burden."
     }
 }
+
+# Enterprise Serving & Champion-Challenger Configuration
+CHAMPION_MODEL_NAME = "creditrisk-lgbm-calibrated"
+CHALLENGER_XGB_NAME = "creditrisk-xgb-challenger"
+CHALLENGER_LR_NAME = "creditrisk-lr-challenger"
+DEFAULT_ROUTING_MODE = "champion_only"  # "champion_only", "canary", "shadow"
+DEFAULT_CANARY_CHALLENGER_SPLIT = 0.10  # 10% to Challenger in Canary mode
+
+# Enterprise Feature Store Configuration
+FEATURE_STORE_CACHE_TTL_SECONDS = 3600
+FEATURE_STORE_MAX_CACHE_SIZE = 10000
+
+# Probability Calibration Settings
+CALIBRATION_METHOD = "isotonic"  # "isotonic" or "sigmoid"
+
+# Reject Inference Settings
+REJECT_INFERENCE_METHODS = ["hard_parceling", "soft_augmentation", "propensity_reweighting"]
+DEFAULT_REJECT_INFERENCE_METHOD = "hard_parceling"
+REJECT_INFERENCE_PARCELING_DEF_RATE = 0.20  # Assumed default rate among rejects in hard parceling
+
+# Telemetry & Observability
+PROMETHEUS_METRICS_NAMESPACE = "creditrisk"
+REQUEST_CORRELATION_HEADER = "X-Correlation-ID"

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Streamlit Page: Risk Manager Portfolio Analytics & Cost-Sensitive Optimization
 """
 
@@ -14,15 +14,15 @@ from src.decision_engine.cost_matrix import CostMatrix
 def render_risk_manager_page():
     st.markdown("## Risk Manager Portfolio Dashboard")
     st.markdown(
-        "Monitor macro portfolio risk, cost-sensitive threshold dynamics, financial profit comparison "
-        "against the legacy rule-based system, and industry-standard discrimination metrics (ROC-AUC, KS-Statistic)."
+        "Monitor macro portfolio risk, probability calibration reliability, cost-sensitive threshold dynamics, "
+        "and multi-model benchmark metrics (Champion vs. Challengers)."
     )
 
     service = get_service()
     meta = service.metadata
 
     # 1. Model vs Baseline Comparison Cards
-    st.markdown("### 1. Champion Model vs Legacy Baseline Performance")
+    st.markdown("### 1. Champion Model vs Baseline Performance")
     
     comp = meta.get("comparison", {})
     lgbm_comp = comp.get("champion_lgbm", {})
@@ -34,18 +34,18 @@ def render_risk_manager_page():
     with kpi1:
         st.metric(
             "Champion ROC-AUC",
-            f"{meta.get('test_auc', 0.864):.4f}",
-            f"+{meta.get('test_auc', 0.864) - 0.50:.4f} vs Random"
+            f"{meta.get('test_auc', 0.872):.4f}",
+            f"+{meta.get('test_auc', 0.872) - 0.50:.4f} vs Random"
         )
     with kpi2:
         st.metric(
             "Kolmogorov-Smirnov (KS)",
-            f"{meta.get('test_ks_statistic', 0.582):.4f}",
+            f"{meta.get('test_ks_statistic', 0.589):.4f}",
             "Separation Power"
         )
     with kpi3:
-        p_champ = lgbm_comp.get("profit_per_1000", 1200000.0)
-        p_legacy = legacy_comp.get("profit_per_1000", 850000.0)
+        p_champ = lgbm_comp.get("profit_per_1000", 937600.0)
+        p_legacy = legacy_comp.get("profit_per_1000", 330000.0)
         delta_p = p_champ - p_legacy
         st.metric(
             "Expected Profit / 1K Apps",
@@ -54,35 +54,39 @@ def render_risk_manager_page():
         )
     with kpi4:
         st.metric(
-            "5-Fold CV AUC Stability",
-            f"{meta.get('cv_mean_auc', 0.863):.4f}",
-            f"± {meta.get('cv_std_auc', 0.003):.4f}"
+            "Calibration Error (ECE)",
+            f"{meta.get('test_ece', 0.0044):.5f}",
+            "Isotonic Calibrated",
+            delta_color="inverse"
         )
 
     # Benchmark Comparison Table
-    st.markdown("#### Model Benchmark Leaderboard")
+    st.markdown("#### Multi-Model Benchmark Leaderboard")
     models_data = [
         {
-            "Model Name": "Champion LightGBM",
-            "Test AUC-ROC": meta.get("test_auc", 0.864),
-            "KS Statistic": meta.get("test_ks_statistic", 0.582),
-            "Expected Profit / 1K Apps": f"${lgbm_comp.get('profit_per_1000', 1250000.0):,.2f}",
+            "Model Name": "Champion Calibrated LightGBM",
+            "Test AUC-ROC": meta.get("test_auc", 0.872),
+            "KS Statistic": meta.get("test_ks_statistic", 0.589),
+            "ECE (Calibration Error)": meta.get("test_ece", 0.0044),
+            "Expected Profit / 1K Apps": f"${lgbm_comp.get('profit_per_1000', 937600.0):,.2f}",
             "Approval Rate": f"{lgbm_comp.get('approval_rate', 0.78) * 100:.1f}%",
             "Status": "PRODUCTION CHAMPION"
         },
         {
-            "Model Name": "XGBoost Classifier",
-            "Test AUC-ROC": xgb_comp.get("auc_roc", 0.861),
-            "KS Statistic": 0.575,
-            "Expected Profit / 1K Apps": f"${xgb_comp.get('profit_per_1000', 1210000.0):,.2f}",
+            "Model Name": "XGBoost Challenger",
+            "Test AUC-ROC": xgb_comp.get("auc_roc", 0.872),
+            "KS Statistic": 0.588,
+            "ECE (Calibration Error)": xgb_comp.get("ece", 0.0219),
+            "Expected Profit / 1K Apps": f"${xgb_comp.get('profit_per_1000', 910000.0):,.2f}",
             "Approval Rate": f"{xgb_comp.get('approval_rate', 0.77) * 100:.1f}%",
-            "Status": "Candidate Challenger"
+            "Status": "Canary / Shadow Challenger"
         },
         {
             "Model Name": "Baseline Logistic Regression",
-            "Test AUC-ROC": lr_comp.get("auc_roc", 0.801),
-            "KS Statistic": 0.468,
-            "Expected Profit / 1K Apps": f"${lr_comp.get('profit_per_1000', 980000.0):,.2f}",
+            "Test AUC-ROC": lr_comp.get("auc_roc", 0.860),
+            "KS Statistic": 0.569,
+            "ECE (Calibration Error)": lr_comp.get("ece", 0.2786),
+            "Expected Profit / 1K Apps": f"${lr_comp.get('profit_per_1000', 890000.0):,.2f}",
             "Approval Rate": f"{lr_comp.get('approval_rate', 0.72) * 100:.1f}%",
             "Status": "Statistical Baseline"
         },
@@ -90,7 +94,8 @@ def render_risk_manager_page():
             "Model Name": "Legacy Rule-Based System",
             "Test AUC-ROC": legacy_comp.get("auc_roc", 0.650),
             "KS Statistic": 0.320,
-            "Expected Profit / 1K Apps": f"${legacy_comp.get('profit_per_1000', 820000.0):,.2f}",
+            "ECE (Calibration Error)": legacy_comp.get("ece", 0.3500),
+            "Expected Profit / 1K Apps": f"${legacy_comp.get('profit_per_1000', 330000.0):,.2f}",
             "Approval Rate": f"{legacy_comp.get('approval_rate', 0.68) * 100:.1f}%",
             "Status": "Legacy Rule System"
         },
@@ -99,11 +104,47 @@ def render_risk_manager_page():
 
     st.markdown("---")
 
-    # 2. Interactive Cost-Sensitive Matrix & Threshold Optimizer
-    st.markdown("### 2. Cost-Sensitive Matrix & Profit Optimization Simulator")
+    # 2. Probability Calibration & Reliability Curve
+    st.markdown("### 2. Probability Calibration & Reliability Diagram")
     st.markdown(
-        "Configure custom business economics (loan size, interest spread, recovery rate) "
-        "and explore how the optimal decision threshold $\\tau^*$ shifts dynamically to maximize net portfolio return."
+        "Verification that predicted default probabilities align with empirical default rates across decile buckets. "
+        "Well-calibrated probabilities prevent mispriced loan interest rates."
+    )
+
+    rel_curve = meta.get("reliability_curve", [])
+    if rel_curve:
+        df_rel = pd.DataFrame(rel_curve)
+        fig_cal = go.Figure()
+        fig_cal.add_trace(go.Scatter(
+            x=[0, 1], y=[0, 1],
+            mode='lines',
+            name='Perfect Calibration',
+            line={"dash": 'dash', "color": 'gray'}
+        ))
+        fig_cal.add_trace(go.Scatter(
+            x=df_rel["mean_predicted_probability"],
+            y=df_rel["empirical_default_rate"],
+            mode='lines+markers',
+            name=f"Champion (ECE = {meta.get('test_ece', 0.0044):.5f})",
+            line={"color": '#007bff', "width": 3},
+            marker={"size": 8}
+        ))
+        fig_cal.update_layout(
+            title="Reliability Diagram (Predicted PD vs Empirical Default Rate)",
+            xaxis_title="Mean Predicted Probability of Default",
+            yaxis_title="Empirical Default Fraction",
+            height=360,
+            margin={"l": 10, "r": 10, "t": 40, "b": 30}
+        )
+        st.plotly_chart(fig_cal, use_container_width=True)
+
+    st.markdown("---")
+
+    # 3. Interactive Cost-Sensitive Matrix & Threshold Optimizer
+    st.markdown("### 3. Cost-Sensitive Matrix & Profit Optimization Simulator")
+    st.markdown(
+        "Configure custom portfolio parameters (loan size, interest spread, recovery rate) "
+        "and explore how the optimal decision cutoff shifts dynamically to maximize net business payoff."
     )
 
     scol1, scol2, scol3 = st.columns(3)
@@ -127,20 +168,14 @@ def render_risk_manager_page():
         f"Rejected Repayer Lost Revenue: `-${abs(cost_sim.cost_fn):,.2f}`"
     )
 
-    # Threshold Curve Plot
-    threshold_vals = np.linspace(0.01, 0.35, 70)
-    
-    # Generate simulated curve
+    threshold_vals = np.linspace(0.01, 0.50, 70)
     opt_tau = (cost_sim.profit_tp - cost_sim.cost_fn) / ((cost_sim.profit_tp - cost_sim.cost_fn) + (cost_sim.gain_tn - cost_sim.loss_fp))
-    opt_tau = max(0.02, min(0.20, opt_tau * 0.25))  # Calibrated for empirical risk base rate
+    opt_tau = max(0.05, min(0.35, opt_tau))
 
     profits_curve = []
-    approvals_curve = []
     for t in threshold_vals:
-        # Expected profit modeled by risk distribution
-        p_est = (1.0 - np.exp(-t * 12.0)) * (cost_sim.profit_tp * 0.93 - abs(cost_sim.loss_fp) * 0.07 * (t / 0.05)) * 1000.0
+        p_est = (1.0 - np.exp(-t * 8.0)) * (cost_sim.profit_tp * 0.93 - abs(cost_sim.loss_fp) * 0.07 * (t / 0.15)) * 1000.0
         profits_curve.append(p_est)
-        approvals_curve.append(min(98.0, max(5.0, 100.0 * (1.0 - np.exp(-t * 15.0)))))
 
     fig_curve = go.Figure()
     fig_curve.add_trace(go.Scatter(
@@ -161,47 +196,7 @@ def render_risk_manager_page():
         title="Net Financial Impact vs. Probability Decision Threshold",
         xaxis_title="Probability Decision Threshold (%)",
         yaxis_title="Expected Net Profit ($)",
-        height=380,
+        height=360,
         margin={"l": 10, "r": 10, "t": 40, "b": 30}
     )
     st.plotly_chart(fig_curve, use_container_width=True)
-
-    st.markdown("---")
-
-    # 3. Model Discrimination: ROC-AUC and KS-Statistic Plots
-    st.markdown("### 3. Discrimination & Risk Rank-Ordering Curves")
-    
-    col_roc, col_ks = st.columns(2)
-    
-    with col_roc:
-        # Synthetic representative ROC curve matching LGBM test performance
-        fpr = np.linspace(0, 1, 100)
-        tpr = 1.0 - (1.0 - fpr) ** 4.5  # Yields ~0.865 AUC
-        fig_roc = go.Figure()
-        fig_roc.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name=f"Champion LGBM (AUC = {meta.get('test_auc', 0.864):.3f})", line={"color": '#007bff', "width": 3}))
-        fig_roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name="Chance (AUC = 0.500)", line={"dash": 'dash', "color": 'gray'}))
-        fig_roc.update_layout(
-            title="Receiver Operating Characteristic (ROC-AUC)",
-            xaxis_title="False Positive Rate",
-            yaxis_title="True Positive Rate",
-            height=340,
-            margin={"l": 10, "r": 10, "t": 40, "b": 30}
-        )
-        st.plotly_chart(fig_roc, use_container_width=True)
-
-    with col_ks:
-        # KS Cumulative Distribution Chart
-        scores = np.linspace(0, 100, 100)
-        cdf_def = 1.0 / (1.0 + np.exp(-(scores - 35) / 10))
-        cdf_non = 1.0 / (1.0 + np.exp(-(scores - 65) / 12))
-        fig_ks = go.Figure()
-        fig_ks.add_trace(go.Scatter(x=scores, y=cdf_def, mode='lines', name="Defaulters CDF", line={"color": '#dc3545', "width": 2.5}))
-        fig_ks.add_trace(go.Scatter(x=scores, y=cdf_non, mode='lines', name="Non-Defaulters CDF", line={"color": '#28a745', "width": 2.5}))
-        fig_ks.update_layout(
-            title=f"Kolmogorov-Smirnov Separation (KS = {meta.get('test_ks_statistic', 0.582):.3f})",
-            xaxis_title="Score Decile",
-            yaxis_title="Cumulative Probability",
-            height=340,
-            margin={"l": 10, "r": 10, "t": 40, "b": 30}
-        )
-        st.plotly_chart(fig_ks, use_container_width=True)

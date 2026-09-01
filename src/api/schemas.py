@@ -1,7 +1,8 @@
-"""
+﻿"""
 Pydantic schemas for CreditRisk FastAPI decision service.
 """
 
+from typing import Any
 from pydantic import BaseModel, Field
 
 
@@ -105,6 +106,10 @@ class SingleDecisionResponse(BaseModel):
     model_version: str
     decision_timestamp: str
     latency_ms: float
+    correlation_id: str | None = None
+    routing_mode: str | None = "champion_only"
+    is_canary: bool | None = False
+    calibrated: bool | None = True
 
 
 class ExplainDecisionResponse(SingleDecisionResponse):
@@ -132,5 +137,22 @@ class HealthResponse(BaseModel):
     model_type: str
     cv_auc: float
     test_auc: float
+    test_ece: float | None = None
     decision_thresholds: dict[str, float]
+    routing_mode: str | None = "champion_only"
     uptime_status: str
+
+
+class RoutingConfigResponse(BaseModel):
+    routing_mode: str
+    champion_model: str
+    challenger_models: list[str]
+    canary_split: float
+    shadow_metrics: dict[str, Any]
+
+
+class FeatureStoreCatalogResponse(BaseModel):
+    total_features: int
+    cached_entities: int
+    status: str
+    features: list[dict[str, Any]]

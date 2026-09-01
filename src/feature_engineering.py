@@ -39,17 +39,17 @@ class CreditFeatureEngineer(BaseEstimator, TransformerMixin):
         df["IncomePerDependent"] = df["MonthlyIncome"].fillna(5400.0) / (df["NumberOfDependents"].fillna(0) + 1.0)
 
         # 4. Estimated Monthly Debt Amount
-        # In Give Me Some Credit, if DebtRatio > 5 and income was missing or nominal, DebtRatio is often the dollar debt.
-        # Otherwise, DebtRatio * MonthlyIncome gives actual monthly debt.
+        # In Give Me Some Credit, if DebtRatio > 5 or income was missing, DebtRatio represents raw dollar debt.
+        # Otherwise, DebtRatio * MonthlyIncome gives actual monthly debt obligation.
         income = df["MonthlyIncome"].fillna(5400.0)
         debt_ratio = df["DebtRatio"].fillna(0.35)
+        is_missing_inc = (df["MonthlyIncome_is_missing"] == 1) if "MonthlyIncome_is_missing" in df.columns else False
         
-        # When DebtRatio is reasonable (<= 5), calculate Debt = DebtRatio * Income
-        # When DebtRatio is huge (> 5), the value itself often represents raw debt in dollars
+        is_raw_dollar_debt = (debt_ratio > 5.0) | is_missing_inc
         df["MonthlyDebtAmount"] = np.where(
-            debt_ratio <= 5.0,
-            debt_ratio * income,
-            debt_ratio
+            is_raw_dollar_debt,
+            debt_ratio,
+            debt_ratio * income
         )
         # Clip debt to sensible upper bound
         df["MonthlyDebtAmount"] = np.clip(df["MonthlyDebtAmount"], 0.0, 100000.0)

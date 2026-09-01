@@ -1,5 +1,5 @@
-"""
-Model evaluation module computing AUC, KS-statistic, PR-AUC, Brier score, and financial payoff.
+﻿"""
+Model evaluation module computing AUC, KS-statistic, PR-AUC, Brier score, ECE, and financial payoff.
 """
 
 from typing import Any
@@ -13,6 +13,7 @@ from sklearn.metrics import (
 )
 
 from src.decision_engine.cost_matrix import CostMatrix
+from src.models.calibration import compute_expected_calibration_error
 
 
 def compute_ks_statistic(y_true: np.ndarray, y_proba: np.ndarray) -> tuple[float, float]:
@@ -23,7 +24,6 @@ def compute_ks_statistic(y_true: np.ndarray, y_proba: np.ndarray) -> tuple[float
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba)
 
-    # Sort probabilities descending
     sort_idx = np.argsort(-y_proba)
     y_sorted = y_true[sort_idx]
     p_sorted = y_proba[sort_idx]
@@ -34,11 +34,9 @@ def compute_ks_statistic(y_true: np.ndarray, y_proba: np.ndarray) -> tuple[float
     if n_defaults == 0 or n_non_defaults == 0:
         return 0.0, 0.5
 
-    # Cumulative distribution functions
     cum_defaults = np.cumsum(y_sorted == 1) / n_defaults
     cum_non_defaults = np.cumsum(y_sorted == 0) / n_non_defaults
 
-    # Difference between CDFs
     ks_curve = np.abs(cum_defaults - cum_non_defaults)
     max_idx = np.argmax(ks_curve)
     ks_stat = float(ks_curve[max_idx])
@@ -66,12 +64,12 @@ def evaluate_model_performance(
     pr_auc = float(average_precision_score(y_true, y_proba))
     ks_stat, ks_thresh = compute_ks_statistic(y_true, y_proba)
     brier = float(brier_score_loss(y_true, y_proba))
+    ece, reliability_curve = compute_expected_calibration_error(y_true, y_proba, n_bins=10)
 
     # 2. Decision classifications at given threshold
     decisions = np.where(y_proba < threshold, "APPROVE", "REJECT")
     y_pred_binary = (y_proba >= threshold).astype(int)
 
-    # Confusion matrix: [ [TN, FP], [FN, TP] ] where 1 is Default, 0 is Repays
     cm = confusion_matrix(y_true, y_pred_binary)
     tn, fp, fn, tp = cm.ravel()
 
@@ -85,6 +83,8 @@ def evaluate_model_performance(
         "ks_statistic": round(ks_stat, 4),
         "ks_optimal_threshold": round(ks_thresh, 4),
         "brier_score": round(brier, 4),
+        "expected_calibration_error": round(ece, 5),
+        "reliability_curve": reliability_curve,
         "decision_threshold_evaluated": round(threshold, 4),
         "confusion_matrix": {
             "true_non_defaults_approved (TN)": int(tn),
