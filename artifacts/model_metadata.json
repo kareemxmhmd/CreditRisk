@@ -1,0 +1,127 @@
+{
+  "model_version": "creditrisk-lgbm-v1.0",
+  "model_type": "LightGBM Classifier",
+  "n_features": 22,
+  "feature_names": [
+    "RevolvingUtilizationOfUnsecuredLines",
+    "age",
+    "NumberOfTime30-59DaysPastDueNotWorse",
+    "DebtRatio",
+    "MonthlyIncome",
+    "NumberOfOpenCreditLinesAndLoans",
+    "NumberOfTimes90DaysLate",
+    "NumberRealEstateLoansOrLines",
+    "NumberOfTime60-89DaysPastDueNotWorse",
+    "NumberOfDependents",
+    "TotalDelinquencies",
+    "SevereDelinquencyRatio",
+    "IncomePerDependent",
+    "MonthlyDebtAmount",
+    "DisposableIncome",
+    "CreditLineDensity",
+    "RealEstateLoanRatio",
+    "HighUtilizationFlag",
+    "DelinquencyAnomalyFlag",
+    "MonthlyIncome_is_missing",
+    "NumberOfDependents_is_missing",
+    "Utilization_x_DebtRatio"
+  ],
+  "training_samples": 105000,
+  "validation_samples": 22500,
+  "test_samples": 22500,
+  "cv_mean_auc": 0.8634,
+  "cv_std_auc": 0.0058,
+  "test_auc": 0.8725,
+  "test_pr_auc": 0.4172,
+  "test_ks_statistic": 0.5894,
+  "test_brier_score": 0.0483,
+  "thresholds": {
+    "optimal_binary_threshold": 0.21437185929648242,
+    "approve_threshold": 0.15006030150753769,
+    "reject_threshold": 0.32155778894472364,
+    "loan_amount": 10000.0,
+    "interest_rate": 0.15,
+    "recovery_rate": 0.1
+  },
+  "comparison": {
+    "legacy_baseline": {
+      "auc_roc": 0.728,
+      "profit_per_1000": 330000.0,
+      "approval_rate": 0.6316888888888889
+    },
+    "logistic_regression": {
+      "auc_roc": 0.8604,
+      "profit_per_1000": -1396933.3333333335,
+      "approval_rate": 0.0009333333333333333
+    },
+    "xgboost": {
+      "auc_roc": 0.8719,
+      "profit_per_1000": 345600.0,
+      "approval_rate": 0.6093333333333333
+    },
+    "champion_lgbm": {
+      "auc_roc": 0.8725,
+      "profit_per_1000": 932266.6666666666,
+      "approval_rate": 0.8852444444444444
+    }
+  },
+  "fairness_audit": {
+    "overall_four_fifths_compliant": false,
+    "reference_group": "Senior (65+)",
+    "reference_approval_rate": 0.9694,
+    "group_metrics": [
+      {
+        "cohort": "Mature (50-64)",
+        "total_applicants": 7911,
+        "population_share": 0.3516,
+        "actual_default_rate": 0.05422828972317027,
+        "approved_count": 7214,
+        "approval_rate": 0.9118948299835672,
+        "repay_approval_rate_tpr": 0.937984496124031,
+        "default_approval_rate_fpr": 0.4568764568764569,
+        "disparate_impact_ratio": 0.9407,
+        "four_fifths_compliant": true,
+        "equal_opportunity_diff": 0.0405
+      },
+      {
+        "cohort": "Prime (30-49)",
+        "total_applicants": 8683,
+        "population_share": 0.3859111111111111,
+        "actual_default_rate": 0.09201888748128527,
+        "approved_count": 7253,
+        "approval_rate": 0.83531037659795,
+        "repay_approval_rate_tpr": 0.8829274479959411,
+        "default_approval_rate_fpr": 0.36545682102628285,
+        "disparate_impact_ratio": 0.8617,
+        "four_fifths_compliant": true,
+        "equal_opportunity_diff": 0.0955
+      },
+      {
+        "cohort": "Senior (65+)",
+        "total_applicants": 4611,
+        "population_share": 0.20493333333333333,
+        "actual_default_rate": 0.023205378442854044,
+        "approved_count": 4470,
+        "approval_rate": 0.9694209499024072,
+        "repay_approval_rate_tpr": 0.9784635879218473,
+        "default_approval_rate_fpr": 0.5887850467289719,
+        "disparate_impact_ratio": 1.0,
+        "four_fifths_compliant": true,
+        "equal_opportunity_diff": 0.0
+      },
+      {
+        "cohort": "Young (<30)",
+        "total_applicants": 1295,
+        "population_share": 0.057555555555555554,
+        "actual_default_rate": 0.1305019305019305,
+        "approved_count": 981,
+        "approval_rate": 0.7575289575289575,
+        "repay_approval_rate_tpr": 0.8214920071047958,
+        "default_approval_rate_fpr": 0.33136094674556216,
+        "disparate_impact_ratio": 0.7814,
+        "four_fifths_compliant": false,
+        "equal_opportunity_diff": 0.157
+      }
+    ]
+  }
+}

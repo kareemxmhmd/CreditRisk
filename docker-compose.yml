@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: creditrisk-api
+    command: uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./audit_decisions.db:/app/audit_decisions.db
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+
+  ui:
+    build: .
+    container_name: creditrisk-ui
+    command: streamlit run src/ui/app.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./audit_decisions.db:/app/audit_decisions.db
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+    depends_on:
+      - api
+    restart: unless-stopped
