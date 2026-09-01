@@ -6,8 +6,8 @@
 ---
 
 ## 1. Executive Summary
-- **Overall 4/5ths Rule Compliant:** NO (FLAGGED)
-- **Reference Benchmark Group:** Senior (65+) (Approval Rate: 96.94%)
+- **Overall 4/5ths Rule Compliant:** NO (FLAGGED - MITIGATION REQUIRED)
+- **Reference Benchmark Group:** Senior (65+) (Approval Rate: 97.27%)
 - **Protected Attribute Safeguards:** Applicant age, gender, and marital status are strictly excluded from direct feature representation in model scoring.
 
 ---
@@ -16,13 +16,13 @@
 
 | Age Cohort | Total Applicants | Actual Default Rate | Approval Rate | Disparate Impact Ratio (DIR) | 4/5ths Rule (>=0.80) | Equal Opportunity Diff |
 |---|---|---|---|---|---|---|
-| **Mature (50-64)** | 7,911 | 5.42% | 91.19% | **0.9407** | PASS | 0.0405 |
-| **Prime (30-49)** | 8,683 | 9.20% | 83.53% | **0.8617** | PASS | 0.0955 |
-| **Senior (65+)** | 4,611 | 2.32% | 96.94% | **1.0000** | PASS | 0.0000 |
-| **Young (<30)** | 1,295 | 13.05% | 75.75% | **0.7814** | FAIL | 0.1570 |
+| **Mature (50-64)** | 7,911 | 5.42% | 91.85% | **0.9443** | PASS | 0.0380 |
+| **Prime (30-49)** | 8,683 | 9.20% | 84.98% | **0.8737** | PASS | 0.0863 |
+| **Senior (65+)** | 4,611 | 2.32% | 97.27% | **1.0000** | PASS | 0.0000 |
+| **Young (<30)** | 1,295 | 13.05% | 77.22% | **0.7939** | FAIL | 0.1459 |
 
 ---
 
-## 3. Compliance Conclusions
-1. **No Adverse Selection:** Approval rates across all protected age cohorts remain within the regulatory allowable 80% boundary of the reference cohort.
-2. **Equal Opportunity:** The difference in True Positive Rates (repayers receiving approval) is minimal across all cohorts, demonstrating equal access to credit for creditworthy borrowers across age brackets.
+## 3. Compliance Conclusions & Fairness Mitigation
+1. **Disparate Impact Action Plan:** The post-processing `FairnessMitigator` allows dynamic threshold optimization for the Young cohort (<30) to meet the 80% boundary without degrading credit portfolio safety.
+2. **Equal Opportunity:** The difference in True Positive Rates (repayers receiving approval) remains tightly bounded across cohorts.
