@@ -149,6 +149,11 @@ class ScoringService:
 
         self.is_loaded = True
 
+    @property
+    def model(self):
+        """Active production model estimator (calibrated champion or raw champion)."""
+        return self.calibrated_champion if self.calibrated_champion is not None else self.raw_champion
+
 
 scoring_service = ScoringService()
 
