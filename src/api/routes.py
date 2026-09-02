@@ -74,7 +74,13 @@ class ScoringService:
 
     def load(self):
         if not (ARTIFACTS_DIR / "champion_lgbm_model.joblib").exists():
-            raise RuntimeError("Model artifacts not found in artifacts/. Please run training pipeline first.")
+            from src.config import RAW_TRAIN_DATA_PATH
+            if RAW_TRAIN_DATA_PATH.exists():
+                logger.info("Model artifacts not found in %s. Automatically running training pipeline from dataset...", ARTIFACTS_DIR)
+                from src.models.train import train_and_evaluate_all
+                train_and_evaluate_all()
+            else:
+                raise RuntimeError("Model artifacts not found in artifacts/. Please run training pipeline first.")
 
         self.cleaner = joblib.load(ARTIFACTS_DIR / "cleaner_pipeline.joblib")
         self.feature_engineer = joblib.load(ARTIFACTS_DIR / "feature_engineer.joblib")

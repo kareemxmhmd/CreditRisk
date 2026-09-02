@@ -1,0 +1,8 @@
+{
+  "optimal_binary_threshold": 0.2513065326633166,
+  "approve_threshold": 0.1759145728643216,
+  "reject_threshold": 0.3769597989949749,
+  "loan_amount": 10000.0,
+  "interest_rate": 0.15,
+  "recovery_rate": 0.1
+}
